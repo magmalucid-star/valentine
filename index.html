@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Veux-tu être ma Valentine ? 💘</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
         body {
             margin: 0;
@@ -22,19 +23,18 @@
             border-radius: 20px;
             text-align: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            max-width: 400px;
+            max-width: 420px;
             animation: fadeIn 1.5s ease;
+            position: relative;
         }
 
         h1 {
             color: #ff4d6d;
-            margin-bottom: 20px;
         }
 
         p {
             color: #555;
             font-size: 1.1em;
-            margin-bottom: 30px;
         }
 
         button {
@@ -43,8 +43,8 @@
             border: none;
             border-radius: 30px;
             cursor: pointer;
-            transition: 0.3s ease;
             margin: 10px;
+            transition: 0.3s ease;
         }
 
         .yes {
@@ -60,33 +60,37 @@
         .no {
             background: #eee;
             color: #555;
-            position: relative;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
-        .no:hover {
-            transform: translateX(80px);
+        .message {
+            margin-top: 15px;
+            color: #ff4d6d;
+            font-weight: bold;
+            min-height: 24px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes shake {
+            0% { transform: translate(-50%, 0); }
+            25% { transform: translate(-55%, 0); }
+            50% { transform: translate(-45%, 0); }
+            75% { transform: translate(-55%, 0); }
+            100% { transform: translate(-50%, 0); }
         }
 
         .hearts {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
         }
 
         .heart {
             position: absolute;
             color: #ff4d6d;
-            font-size: 20px;
             animation: float 6s linear infinite;
-            opacity: 0.7;
+            opacity: 0.8;
         }
 
         @keyframes float {
@@ -95,7 +99,7 @@
                 opacity: 1;
             }
             to {
-                transform: translateY(-10vh) scale(1.2);
+                transform: translateY(-10vh) scale(1.3);
                 opacity: 0;
             }
         }
@@ -105,44 +109,94 @@
 
 <div class="hearts" id="hearts"></div>
 
-<div class="container">
+<div class="container" id="container">
     <h1>💖 Veux-tu être ma Valentine ? 💖</h1>
     <p>
-        Depuis que je te connais, chaque jour est plus beau à tes côtés.<br>
-        Le 14 février arrive… et je ne veux le passer qu’avec toi.
+        Chaque jour avec toi est un cadeau ❤️<br>
+        Alors… accepterais-tu d’être ma Valentine ?
     </p>
 
     <button class="yes" onclick="yesClicked()">Oui 💕</button>
-    <button class="no">Non 😢</button>
+    <button class="no" id="noBtn">Non 😢</button>
+
+    <div class="message" id="message"></div>
 </div>
 
 <script>
-    function yesClicked() {
-        document.querySelector('.container').innerHTML = `
-            <h1>💘 Youpiiiii 💘</h1>
-            <p>
-                Je savais que tu dirais oui ❤️<br>
-                Prépare-toi pour une Saint-Valentin inoubliable.
-            </p>
-            <h2>🥰</h2>
-        `;
-    }
+    const noBtn = document.getElementById("noBtn");
+    const message = document.getElementById("message");
 
-    const heartsContainer = document.getElementById('hearts');
+    let tries = 0;
 
-    setInterval(() => {
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        heart.innerHTML = '❤️';
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.fontSize = Math.random() * 20 + 15 + 'px';
-        heart.style.animationDuration = Math.random() * 3 + 4 + 's';
-        heartsContainer.appendChild(heart);
+    const messages = [
+        "😏 Bien essayé",
+        "😈 Nope",
+        "💘 Tu sais que tu veux dire oui",
+        "😂 Presque",
+        "❤️ Allez stp",
+        "🙄 Même pas en rêve",
+        "🥰 Clique sur OUI"
+    ];
+
+    function moveNoButton() {
+        tries++;
+
+        const x = Math.random() * 300 - 150;
+        const y = Math.random() * 200 - 100;
+
+        noBtn.style.transform = `translate(${x}px, ${y}px)`;
+        noBtn.style.animation = "shake 0.3s";
+
+        message.textContent = messages[Math.floor(Math.random() * messages.length)];
 
         setTimeout(() => {
-            heart.remove();
-        }, 6000);
-    }, 300);
+            noBtn.style.animation = "";
+        }, 300);
+
+        if (tries >= 7) {
+            noBtn.style.display = "none";
+            message.textContent = "❌ Option supprimée définitivement 😌";
+        }
+    }
+
+    // Fuite à la souris
+    noBtn.addEventListener("mouseover", moveNoButton);
+
+    // Blocage clic
+    noBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        moveNoButton();
+    });
+
+    // Blocage clavier (tab + enter)
+    noBtn.setAttribute("tabindex", "-1");
+
+    function yesClicked() {
+        document.getElementById("container").innerHTML = `
+            <h1>💘 J’AI GAGNÉ 💘</h1>
+            <p>
+                Je savais que tu dirais oui ❤️<br>
+                Prépare-toi pour une Saint-Valentin incroyable.
+            </p>
+            <h2>🥰🥰🥰</h2>
+        `;
+        explodeHearts();
+    }
+
+    function explodeHearts() {
+        const hearts = document.getElementById("hearts");
+        for (let i = 0; i < 50; i++) {
+            const heart = document.createElement("div");
+            heart.classList.add("heart");
+            heart.innerHTML = "❤️";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = Math.random() * 25 + 15 + "px";
+            heart.style.animationDuration = Math.random() * 2 + 3 + "s";
+            hearts.appendChild(heart);
+
+            setTimeout(() => heart.remove(), 6000);
+        }
+    }
 </script>
 
 </body>
